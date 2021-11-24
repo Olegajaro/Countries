@@ -18,6 +18,11 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupUITableView()
+    }
+    
+    func setupUITableView() {
+        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -25,6 +30,10 @@ class ViewController: UIViewController {
             UINib(nibName: "CountriesListTableViewCell", bundle: nil),
             forCellReuseIdentifier: "countryCell"
         )
+        
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+//        tableView.separatorStyle = .none
+        tableView.separatorColor = .lightGray
     }
 }
 
@@ -34,6 +43,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         countryList.count
         
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        
+        let country = countryList[indexPath.row]
+        
+        if country == "USA" {
+            return 80
+        } else {
+            return 40
+        }
     }
     
     func tableView(_ tableView: UITableView,
@@ -46,7 +66,21 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         cell.mainLabel.text = countryList[indexPath.row]
         
+        configureCell(cell: cell)
+        
         return cell
+        
+    }
+    
+    private func configureCell(cell: UITableViewCell) {
+        
+        cell.backgroundColor = .blue
+//        cell.accessoryType = .checkmark
+//        cell.tintColor = .red
+        
+        if let countriesCell = cell as?CountriesListTableViewCell {
+            countriesCell.mainLabel.textColor = .white
+        }
         
     }
 }
