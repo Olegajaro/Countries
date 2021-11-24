@@ -32,8 +32,37 @@ class ViewController: UIViewController {
         )
         
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-//        tableView.separatorStyle = .none
         tableView.separatorColor = .lightGray
+        
+        // MARK: - TableHeaderView
+        tableView.tableHeaderView = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: tableView.bounds.width,
+            height: 60
+        ))
+        tableView.tableHeaderView?.backgroundColor = .gray
+        
+        let labelHeader = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
+        labelHeader.textColor = .white
+        labelHeader.textAlignment = .left
+        labelHeader.text = "Countries".uppercased()
+        tableView.tableHeaderView?.addSubview(labelHeader)
+        
+        // MARK: - TableFooterView
+        tableView.tableFooterView = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: tableView.bounds.width,
+            height: 60
+        ))
+        tableView.tableFooterView?.backgroundColor = .black
+        
+        let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
+        labelFooter.textColor = .white
+        labelFooter.textAlignment = .left
+        labelFooter.text = "Countries count: \(countryList.count)"
+        tableView.tableFooterView?.addSubview(labelFooter )
     }
 }
 
