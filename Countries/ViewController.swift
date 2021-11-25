@@ -70,6 +70,40 @@ class ViewController: UIViewController {
         
     }
     
+    // MARK: - Sharing text
+    func shareText(text: String) {
+        
+        let activityVC = UIActivityViewController(activityItems: [text],
+                                                  applicationActivities: nil)
+        
+        activityVC.excludedActivityTypes = [
+            .addToReadingList, .airDrop, .openInIBooks,
+            .print, .saveToCameraRoll, .postToVimeo,
+            .postToWeibo, .postToFlickr, .markupAsPDF
+        ]
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            
+            guard
+                let popOver = activityVC.popoverPresentationController
+            else { return }
+            
+            popOver.sourceView = self.view
+            popOver.sourceRect = CGRect(
+                origin: CGPoint(x: view.frame.width / 2, y: 0),
+                size: CGSize.zero
+            )
+            
+            present(activityVC, animated: true)
+            
+        } else {
+            
+            present(activityVC, animated: true)
+            
+        }
+            
+    }
+    
     // MARK: - Alert
     func showAlertWithText(vc: UIViewController, title: String, message: String) {
         
@@ -132,11 +166,11 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         DispatchQueue.main.async {
             
-           self.showAlertWithText(
-            vc: self,
-            title: self.countriesList[indexPath.row].name,
-            message: "Population: \(self.countriesList[indexPath.row].population)"
-           )
+            self.showAlertWithText(
+                vc: self,
+                title: self.countriesList[indexPath.row].name,
+                message: "Population: \(self.countriesList[indexPath.row].population)"
+            )
             
         }
     }
@@ -156,14 +190,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
      }
      */
     
+    // MARK: - Trailing Swipe Actions Configuration
     func tableView(
         _ tableView: UITableView,
-        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
             
             print("trailing happened")
             
             if !countriesList.isEmpty {
                 
+                /// Delete action
                 let deleteAction = UIContextualAction(
                     style: .destructive,
                     title: "") { _, _, isDone in
@@ -182,8 +219,21 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 deleteAction.image = #imageLiteral(resourceName: "trash")
                 
+                /// Share text Action
+                let copyAction = UIContextualAction(
+                    style: .normal,
+                    title: "Copy") { _, _, _ in
+                        
+                        self.shareText(text: "\(self.countriesList[indexPath.row].name)\nPopulation \(self.countriesList[indexPath.row].population)")
+                        
+                        self.tableView.isEditing = false
+                    }
+                
+                copyAction.backgroundColor = .gray
+                
                 let swipeActionConfiguration = UISwipeActionsConfiguration(
-                    actions: [deleteAction])
+                    actions: [copyAction ,deleteAction]
+                )
                 
                 return swipeActionConfiguration
                 
@@ -194,6 +244,41 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             }
         }
     
+    // MARK: - Leading swipe Actions Congfiguration
+    func tableView(
+        _ tableView: UITableView,
+        leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        
+        print("leading happened")
+        
+        let showPopulationAction = UIContextualAction(
+            style: .normal,
+            title: "👨‍👦‍👦") { _, _, _ in
+                
+                DispatchQueue.main.async {
+                    
+                    self.showAlertWithText(
+                        vc: self,
+                        title: self.countriesList[indexPath.row].name,
+                        message: "Population: \(self.countriesList[indexPath.row].population)"
+                    )
+                    
+                }
+                
+                self.tableView.isEditing = false
+            }
+        
+        showPopulationAction.backgroundColor = .green
+        
+        let swipeActionConfiguration = UISwipeActionsConfiguration(
+            actions: [showPopulationAction]
+        )
+        
+        return swipeActionConfiguration
+    }
+    
+    // MARK: - Configure Cell
     private func configureCell(cell: UITableViewCell) {
         
         cell.backgroundColor = .blue
