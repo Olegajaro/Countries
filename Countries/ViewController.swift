@@ -15,6 +15,8 @@ class ViewController: UIViewController {
         ("Australia", 25088636),("Finland", 5561389)
     ]
 
+    let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
+    
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
@@ -61,10 +63,9 @@ class ViewController: UIViewController {
         ))
         tableView.tableFooterView?.backgroundColor = .black
         
-        let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
         labelFooter.textColor = .white
         labelFooter.textAlignment = .left
-        labelFooter.text = "Countries count: \(countriesList.count)"
+        labelFooter.text = "Countries count: \(self.countriesList.count)"
         tableView.tableFooterView?.addSubview(labelFooter )
         
     }
@@ -139,6 +140,59 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             
         }
     }
+    
+    /*
+     func tableView(
+     _ tableView: UITableView,
+     commit editingStyle: UITableViewCell.EditingStyle,
+     forRowAt indexPath: IndexPath
+     ) {
+     
+     if editingStyle == .delete {
+     countriesList.remove(at: indexPath.row)
+     tableView.deleteRows(at: [indexPath], with: .automatic)
+     }
+     
+     }
+     */
+    
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+            
+            print("trailing happened")
+            
+            if !countriesList.isEmpty {
+                
+                let deleteAction = UIContextualAction(
+                    style: .destructive,
+                    title: "") { _, _, isDone in
+                        
+                        self.countriesList.remove(at: indexPath.row)
+                        print("delete action")
+                        self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                        
+                        DispatchQueue.main.async {
+                            self.labelFooter.text = "Countries count: \(self.countriesList.count)"
+                        }
+                        
+                        isDone(true)
+                        
+                    }
+                
+                deleteAction.image = #imageLiteral(resourceName: "trash")
+                
+                let swipeActionConfiguration = UISwipeActionsConfiguration(
+                    actions: [deleteAction])
+                
+                return swipeActionConfiguration
+                
+            } else {
+                
+                return nil
+                
+            }
+        }
     
     private func configureCell(cell: UITableViewCell) {
         
