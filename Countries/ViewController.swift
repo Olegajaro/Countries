@@ -9,9 +9,11 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    let countryList = ["USA", "UK", "Italy",
-                       "Russia", "Spain", "Canada",
-                       "Australia", "Finland"]
+    var countriesList: [(name: String, population: Int)] = [
+        ("USA", 329093110),("UK", 66959016),("Italy", 59216525),
+        ("Russia", 143895551),("Spain", 46441049),("Canada", 37279811),
+        ("Australia", 25088636),("Finland", 5561389)
+    ]
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -21,6 +23,7 @@ class ViewController: UIViewController {
         setupUITableView()
     }
     
+    // MARK: - Table Appearance
     func setupUITableView() {
         
         tableView.delegate = self
@@ -61,28 +64,47 @@ class ViewController: UIViewController {
         let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
         labelFooter.textColor = .white
         labelFooter.textAlignment = .left
-        labelFooter.text = "Countries count: \(countryList.count)"
+        labelFooter.text = "Countries count: \(countriesList.count)"
         tableView.tableFooterView?.addSubview(labelFooter )
+        
     }
+    
+    // MARK: - Alert
+    func showAlertWithText(vc: UIViewController, title: String, message: String) {
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let alertAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
+            print("cancel")
+        }
+        
+        alert.addAction(alertAction)
+        
+        present(alert, animated: true)
+        
+    }
+    
 }
 
+// MARK: - UITableViewDelegate and UITableViewDataSource
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
         
-        countryList.count
+        countriesList.count
         
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        let country = countryList[indexPath.row]
+        let country = countriesList[indexPath.row]
         
-        if country == "USA" {
+        if country.name == "USA" {
             return 80
         } else {
             return 40
         }
+        
     }
     
     func tableView(_ tableView: UITableView,
@@ -93,7 +115,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             for: indexPath
         ) as! CountriesListTableViewCell
         
-        cell.mainLabel.text = countryList[indexPath.row]
+        cell.mainLabel.text = countriesList[indexPath.row].name
         
         configureCell(cell: cell)
         
@@ -101,9 +123,27 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        print("row selected ")
+        
+        DispatchQueue.main.async {
+            
+           self.showAlertWithText(
+            vc: self,
+            title: self.countriesList[indexPath.row].name,
+            message: "Population: \(self.countriesList[indexPath.row].population)"
+           )
+            
+        }
+    }
+    
     private func configureCell(cell: UITableViewCell) {
         
         cell.backgroundColor = .blue
+        cell.selectionStyle = .none
 //        cell.accessoryType = .checkmark
 //        cell.tintColor = .red
         
