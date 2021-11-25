@@ -130,7 +130,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView,
+                   heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         let country = countriesList[indexPath.row]
         
@@ -158,7 +159,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView,
+                   didSelectRowAt indexPath: IndexPath) {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -174,21 +176,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             
         }
     }
-    
-    /*
-     func tableView(
-     _ tableView: UITableView,
-     commit editingStyle: UITableViewCell.EditingStyle,
-     forRowAt indexPath: IndexPath
-     ) {
-     
-     if editingStyle == .delete {
-     countriesList.remove(at: indexPath.row)
-     tableView.deleteRows(at: [indexPath], with: .automatic)
-     }
-     
-     }
-     */
     
     // MARK: - Trailing Swipe Actions Configuration
     func tableView(
@@ -227,12 +214,27 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                         self.shareText(text: "\(self.countriesList[indexPath.row].name)\nPopulation \(self.countriesList[indexPath.row].population)")
                         
                         self.tableView.isEditing = false
+                        
                     }
                 
                 copyAction.backgroundColor = .gray
                 
+                /// Move action
+                let moveAction =  UIContextualAction(
+                    style: .normal,
+                    title: "Move") { _, _, _ in
+                        
+                        print("Move action code")
+                        
+                        self.tableView.isEditing = false // hiding actions
+                        self.tableView.isEditing = true // enabling the editing mode
+                        
+                    }
+                
+                moveAction.backgroundColor = .black
+                
                 let swipeActionConfiguration = UISwipeActionsConfiguration(
-                    actions: [copyAction ,deleteAction]
+                    actions: [deleteAction, copyAction, moveAction]
                 )
                 
                 return swipeActionConfiguration
@@ -277,6 +279,39 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         return swipeActionConfiguration
     }
+    
+    // MARK: - Move Row At
+    func tableView(
+        _ tableView: UITableView,
+        moveRowAt sourceIndexPath: IndexPath,
+        to destinationIndexPath: IndexPath
+    ) {
+        
+        let moveObject = countriesList[sourceIndexPath.row]
+        countriesList.remove(at: sourceIndexPath.row)
+        countriesList.insert(moveObject, at: destinationIndexPath.row)
+        tableView.isEditing = false
+        
+    }
+    
+    func tableView(
+        _ tableView: UITableView,
+        editingStyleForRowAt indexPath: IndexPath
+    ) -> UITableViewCell.EditingStyle {
+        
+        return .none
+        
+    }
+    
+    func tableView(
+        _ tableView: UITableView,
+        shouldIndentWhileEditingRowAt indexPath: IndexPath
+    ) -> Bool {
+            
+        return false
+    
+    }
+    
     
     // MARK: - Configure Cell
     private func configureCell(cell: UITableViewCell) {
