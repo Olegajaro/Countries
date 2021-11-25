@@ -18,6 +18,9 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
+    let labelHeader = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
+    let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
+    
     var countriesList: [(name: String, population: Int)] = [
         ("Afghanistan",37209007),("Albania",2938428),("Algeria",42679018),
         ("Andorra",77072),("Angola",31787566),("Antigua and Barbuda",104084),
@@ -86,7 +89,8 @@ class ViewController: UIViewController {
         ("Vietnam",97429061),("Yemen",29579986),("Zambia",18137369),("Zimbabwe",17297495)
     ]
     
-    let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
+    var countriesDictionary = [String: [(name: String, population: Int)]]()
+    var sectionTitles = [String]() // A, B, C, D...
     
     private var currentViewModeValue: ViewMode = .simple
     
@@ -107,6 +111,9 @@ class ViewController: UIViewController {
         }
         
         print("Switch mode tapped: \(currentViewModeValue)")
+        
+        updateTableView()
+        
     }
     
     
@@ -131,12 +138,11 @@ class ViewController: UIViewController {
             width: tableView.bounds.width,
             height: 60
         ))
-        tableView.tableHeaderView?.backgroundColor = .gray
+        tableView.tableHeaderView?.backgroundColor = .black
         
-        let labelHeader = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
         labelHeader.textColor = .white
         labelHeader.textAlignment = .left
-        labelHeader.text = "Countries".uppercased()
+        labelHeader.text = "🌎\(self.countriesList.count) Countries"
         tableView.tableHeaderView?.addSubview(labelHeader)
         
         // MARK: - TableFooterView
@@ -153,6 +159,15 @@ class ViewController: UIViewController {
         labelFooter.text = "Countries count: \(self.countriesList.count)"
         tableView.tableFooterView?.addSubview(labelFooter )
         
+        tableView.sectionIndexBackgroundColor = .black
+        tableView.sectionIndexColor = .white
+        
+    }
+    
+    private func updateTableView() {
+        createExtendedTableViewData()
+        
+        tableView.reloadData()
     }
     
     // MARK: - Sharing text
@@ -189,6 +204,34 @@ class ViewController: UIViewController {
         
     }
     
+    // MARK: - Extended TableView Mode
+    private func createExtendedTableViewData() {
+        
+        countriesDictionary.removeAll()
+        
+        // populate
+        for country in countriesList {
+            
+            let countryKey = String(country.name.prefix(1)) // Russia -> R
+            
+            if var countryValues = countriesDictionary[countryKey] {
+                
+                countryValues.append(country)
+                countriesDictionary[countryKey] = countryValues
+                
+            } else {
+                
+                countriesDictionary[countryKey] = [country]
+                
+            }
+            
+        }
+        
+        sectionTitles = [String](countriesDictionary.keys)
+        sectionTitles = sectionTitles.sorted(by: <) // A...Z
+        
+    }
+    
     // MARK: - Alert
     func showAlertWithText(vc: UIViewController, title: String, message: String) {
         
@@ -208,10 +251,37 @@ class ViewController: UIViewController {
 
 // MARK: - UITableViewDelegate and UITableViewDataSource
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        
+        switch currentViewModeValue {
+        case .simple:
+            return 1
+        case .extended:
+            return sectionTitles.count
+        }
+        
+    }
+    
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
         
-        countriesList.count
+        switch currentViewModeValue {
+        case .simple:
+            return countriesList.count
+        case .extended:
+            
+            let countryKey = sectionTitles[section] // A, B, C
+            
+            if let countryValues = countriesDictionary[countryKey] {
+                
+                return countryValues.count
+                
+            }
+             
+        }
+        
+        return 0
         
     }
     
@@ -236,13 +306,77 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             for: indexPath
         ) as! CountriesListTableViewCell
         
-        cell.mainLabel.text = countriesList[indexPath.row].name
+        switch currentViewModeValue {
+        case .simple:
+            
+            cell.mainLabel.text = countriesList[indexPath.row].name
+            
+            configureCell(cell)
+            
+            return cell
+            
+        case .extended:
+             
+            let countryKey = sectionTitles[indexPath.section]
+            
+            if let countryValues = countriesDictionary[countryKey] {
+                
+                cell.mainLabel.text = countryValues[indexPath.row].name
+                
+            }
+            
+            configureCell(cell)
+            
+            return cell
+            
+        }
+    
+    }
+    
+    // MARK: - Section Header Settings
+    func tableView(_ tableView: UITableView,
+                   titleForHeaderInSection section: Int) -> String? {
         
-        configureCell(cell: cell)
-        
-        return cell
+        switch currentViewModeValue {
+        case .simple:
+            return nil
+        case .extended:
+            return sectionTitles[section] // A, B, C
+        }
         
     }
+    
+    func tableView(_ tableView: UITableView,
+                   estimatedHeightForHeaderInSection section: Int) -> CGFloat {
+
+        switch currentViewModeValue {
+        case .simple:
+            return 0
+        case .extended:
+            return 40
+        }
+
+    }
+
+//    func tableView(_ tableView: UITableView,
+//                   viewForHeaderInSection section: Int) -> UIView? {
+//
+//        let returnedView = UIView(frame: CGRect(
+//            x: 0,
+//            y: 0,
+//            width: view.bounds.width,
+//            height: 40
+//        ))
+//        returnedView.backgroundColor = .black
+//
+//        let label = UILabel(frame: CGRect(x: 16, y: 10, width: 200, height: 20))
+//        label.text = sectionTitles[section] // A, B, C
+//        label.textColor = .white
+//
+//        returnedView.addSubview(label)
+//
+//        return returnedView
+//    }
     
     func tableView(_ tableView: UITableView,
                    didSelectRowAt indexPath: IndexPath) {
@@ -251,15 +385,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         print("row selected ")
         
-        DispatchQueue.main.async {
-            
-            self.showAlertWithText(
-                vc: self,
-                title: self.countriesList[indexPath.row].name,
-                message: "Population: \(self.countriesList[indexPath.row].population)"
-            )
-            
-        }
     }
     
     // MARK: - Trailing Swipe Actions Configuration
@@ -277,15 +402,43 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                 style: .destructive,
                 title: "") { _, _, isDone in
                     
-                    self.countriesList.remove(at: indexPath.row)
-                    print("delete action")
-                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                    
-                    DispatchQueue.main.async {
-                        self.labelFooter.text = "Countries count: \(self.countriesList.count)"
+                    switch self.currentViewModeValue {
+                    case .simple:
+                        
+                        self.countriesList.remove(at: indexPath.row)
+                        print("delete action")
+                        self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                        
+                        DispatchQueue.main.async {
+                            self.labelFooter.text = "Countries count: \(self.countriesList.count)"
+                            self.labelHeader.text = "🌎\(self.countriesList.count) Countries"
+                        }
+                        
+                    case .extended:
+                        
+                        let countryKey = self.sectionTitles[indexPath.section]
+                        
+                        if var countryValues = self.countriesDictionary[countryKey] {
+                            
+                            countryValues.remove(at: indexPath.row)
+                            self.countriesList.remove(at: indexPath.row)
+                            self.countriesDictionary[countryKey] = countryValues
+                            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                            
+                            if countryValues.count <= 0 {
+                                
+                                self.sectionTitles.remove(at: indexPath.section)
+                                self.tableView.reloadData()
+                                
+                            }
+                        }
+                        
+                        DispatchQueue.main.async {
+                            self.labelFooter.text = "Countries count: \(self.countriesList.count)"
+                            self.labelHeader.text = "🌎\(self.countriesList.count) Countries"
+                        }
+                        
                     }
-                    
-                    isDone(true)
                     
                 }
             
@@ -296,7 +449,27 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                 style: .normal,
                 title: "Copy") { _, _, _ in
                     
-                    self.shareText(text: "\(self.countriesList[indexPath.row].name)\nPopulation \(self.countriesList[indexPath.row].population)")
+                    switch self.currentViewModeValue {
+                    case .simple:
+                        
+                        self.shareText(
+                            text: "\(self.countriesList[indexPath.row].name)\nPopulation \(self.countriesList[indexPath.row].population)"
+                        )
+                        
+                    case .extended:
+                        
+                        let countryKey = self.sectionTitles[indexPath.section]
+                        
+                        if let countryValues = self.countriesDictionary[countryKey] {
+                            
+                            self.shareText(
+                                text: "\(countryValues[indexPath.row].name)\nPopulation \(countryValues[indexPath.row].population)"
+                            )
+                            
+                        }
+                        
+                    }
+                    
                     
                     self.tableView.isEditing = false
                     
@@ -331,7 +504,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-    // MARK: - Leading swipe Actions Congfiguration
+    // MARK: - Leading swipe Actions Configuration
     func tableView(
         _ tableView: UITableView,
         leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
@@ -343,16 +516,39 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             style: .normal,
             title: "👨‍👦‍👦") { _, _, _ in
                 
-                DispatchQueue.main.async {
+                switch self.currentViewModeValue {
+                case .simple:
                     
-                    self.showAlertWithText(
-                        vc: self,
-                        title: self.countriesList[indexPath.row].name,
-                        message: "Population: \(self.countriesList[indexPath.row].population)"
-                    )
+                    DispatchQueue.main.async {
+                        
+                        self.showAlertWithText(
+                            vc: self,
+                            title: self.countriesList[indexPath.row].name,
+                            message: "Population: \(self.countriesList[indexPath.row].population)"
+                        )
+                        
+                    }
+                    
+                case .extended:
+                    
+                    let countryKey = self.sectionTitles[indexPath.section]
+                    
+                    if let countryValues = self.countriesDictionary[countryKey] {
+                        
+                        DispatchQueue.main.async {
+                            
+                            self.showAlertWithText(
+                                vc: self,
+                                title: countryValues[indexPath.row].name,
+                                message: "Population: \(countryValues[indexPath.row].population)"
+                            )
+                            
+                        }
+                        
+                    }
                     
                 }
-                
+
                 self.tableView.isEditing = false
             }
         
@@ -398,17 +594,57 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
     }
     
+    func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+        
+        switch currentViewModeValue {
+        case .simple:
+            return nil
+        case .extended:
+            return sectionTitles
+        }
+
+    }
+    
     // MARK: - Configure Cell
-    private func configureCell(cell: UITableViewCell) {
-        
-        cell.backgroundColor = .blue
-        cell.selectionStyle = .none
-        //        cell.accessoryType = .checkmark
-        //        cell.tintColor = .red
-        
-        if let countriesCell = cell as?CountriesListTableViewCell {
-            countriesCell.mainLabel.textColor = .white
+    private func configureCell(_ cell: UITableViewCell) {
+
+        switch currentViewModeValue {
+        case .simple:
+            cell.backgroundColor = .black
+        case .extended:
+            cell.backgroundColor = .black
         }
         
+        if let countriesCell = cell as? CountriesListTableViewCell {
+            
+            switch currentViewModeValue {
+            case .simple:
+                countriesCell.mainLabel.textColor = .white
+            case .extended:
+                countriesCell.mainLabel.textColor = .randomColor
+            }
+            
+        }
+        
+        cell.tintColor = .red
+        cell.selectionStyle = .none
+        cell.accessoryType = .none
+        
     }
+}
+
+
+extension UIColor {
+    
+    static var randomColor: UIColor {
+        
+        return UIColor(
+            red: .random(in: 0...1),
+            green: .random(in: 0...1),
+            blue: .random(in: 0...1),
+            alpha: 1
+        )
+        
+    }
+    
 }
