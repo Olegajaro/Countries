@@ -23,6 +23,9 @@ class ViewController: UIViewController {
     let labelHeader = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
     let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
     
+    var searchController: UISearchController!
+    var filteredCountriesList = [(name: String, population: Int)]()
+    
     var countriesList: [(name: String, population: Int)] = [
         ("Afghanistan",37209007),("Albania",2938428),("Algeria",42679018),
         ("Andorra",77072),("Angola",31787566),("Antigua and Barbuda",104084),
@@ -99,6 +102,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupSearchController()
         setupUITableView()
     }
     
@@ -118,6 +122,29 @@ class ViewController: UIViewController {
         
     }
     
+    // MARK: - SearchController
+    func setupSearchController() {
+        
+        searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        
+        searchController.delegate = self
+        searchController.searchBar.delegate = self
+        
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search"
+        
+        searchController.hidesNavigationBarDuringPresentation = false
+        
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        
+        definesPresentationContext = true
+        
+        let searchBar = searchController.searchBar
+        searchBar.searchBarStyle = .prominent
+        
+    }
     
     // MARK: - Table Appearance
     func setupUITableView() {
@@ -236,7 +263,7 @@ class ViewController: UIViewController {
     }
     
     // MARK: - Alert
-    func showAlertWithText(vc: UIViewController, title: String, message: String) {
+    private func showAlertWithText(vc: UIViewController, title: String, message: String) {
         
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         
@@ -247,6 +274,57 @@ class ViewController: UIViewController {
         alert.addAction(alertAction)
         
         present(alert, animated: true)
+        
+    }
+    
+    private func isFiltering() -> Bool {
+        
+        searchController.isActive && !searchBarIsEmpty()
+        
+    }
+    
+    private func searchBarIsEmpty() -> Bool {
+        
+        searchController.searchBar.text?.isEmpty ?? true
+        
+    }
+}
+
+// MARK: - Search Protocols
+extension ViewController: UISearchBarDelegate, UISearchControllerDelegate {
+    
+}
+
+extension ViewController: UISearchResultsUpdating {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        
+        print("Update search results")
+        
+        filteredCountriesList.removeAll()
+        
+        let whitespacesCharacterSet = CharacterSet.whitespaces
+        let strippedString = searchController.searchBar.text?.trimmingCharacters(in: whitespacesCharacterSet).lowercased()
+        
+        filteredCountriesList = countriesList.filter { country in
+            
+            if country.name.lowercased().contains(strippedString ?? "") {
+                
+                return true
+                
+            } else {
+                
+                return false
+                
+            }
+            
+        }
+        
+        DispatchQueue.main.async {
+             
+            self.tableView.reloadData()
+            
+        }
         
     }
     
@@ -271,7 +349,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         switch currentViewModeValue {
         case .simple:
-            return countriesList.count
+            
+            if !isFiltering() {
+                
+                return countriesList.count
+                
+            } else {
+                
+                return filteredCountriesList.count
+                
+            }
+            
         case .extended:
             
             let countryKey = sectionTitles[section] // A, B, C
@@ -312,7 +400,15 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         switch currentViewModeValue {
         case .simple:
             
-            cell.mainLabel.text = countriesList[indexPath.row].name
+            if !isFiltering() {
+                
+                cell.mainLabel.text = countriesList[indexPath.row].name
+
+            } else {
+                
+                cell.mainLabel.text = filteredCountriesList[indexPath.row].name
+                
+            }
             
             configureCell(cell)
             
@@ -392,7 +488,18 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         switch currentViewModeValue {
         case .simple:
             
-            let country = countriesList[indexPath.row]
+            var country: (name: String, population: Int)
+            
+            if !isFiltering() {
+                
+                country = countriesList[indexPath.row]
+                
+            } else {
+                
+                country = filteredCountriesList[indexPath.row]
+                
+            }
+            
             let cell = tableView.cellForRow(at: indexPath) as? CountriesListTableViewCell
             
             let countryTextColor = cell?.mainLabel.textColor ?? .white
