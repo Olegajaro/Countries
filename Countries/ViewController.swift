@@ -18,6 +18,8 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
+    let segueID = "showCountryVCSegue"
+    
     let labelHeader = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
     let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
     
@@ -381,9 +383,11 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView,
                    didSelectRowAt indexPath: IndexPath) {
         
-        tableView.deselectRow(at: indexPath, animated: true)
+//        tableView.deselectRow(at: indexPath, animated: true)
         
         print("row selected ")
+        
+        performSegue(withIdentifier: segueID, sender: nil)
         
     }
     
@@ -602,6 +606,46 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             return sectionTitles
         }
 
+    }
+    
+    // MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        switch currentViewModeValue {
+        case .simple:
+            
+            if segue.identifier == segueID,
+               let destinationVC = segue.destination as? CountryViewController,
+               let indexPath = tableView.indexPathForSelectedRow {
+                
+                destinationVC.country = countriesList[indexPath.row]
+                
+                let cell = tableView.cellForRow(at: indexPath) as? CountriesListTableViewCell
+                
+                destinationVC.countryTextColor = cell?.mainLabel.textColor ?? .white
+                
+            }
+            
+        case .extended:
+            
+            if segue.identifier == segueID,
+               let destinationVC = segue.destination as? CountryViewController,
+               let indexPath = tableView.indexPathForSelectedRow {
+                
+                let countryKey = sectionTitles[indexPath.section] // A, B, C
+                
+                let countries = countriesDictionary[countryKey] // [Country]
+                
+                destinationVC.country = countries?[indexPath.row]
+                
+                let cell = tableView.cellForRow(at: indexPath) as? CountriesListTableViewCell
+                
+                destinationVC.countryTextColor = cell?.mainLabel.textColor ?? .white
+                
+            }
+            
+        }
+        
     }
     
     // MARK: - Configure Cell

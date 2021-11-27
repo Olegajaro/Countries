@@ -19,10 +19,23 @@
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Wk5-vu-UvS">
                                 <rect key="frame" x="0.0" y="88" width="414" height="774"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="xqE-Ou-BX0">
+                                        <rect key="frame" x="0.0" y="44.5" width="414" height="43.5"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="xqE-Ou-BX0" id="cA4-cT-8R1">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="zTu-jA-Vk7" kind="show" identifier="showCountryVCSegue" id="V5v-MS-c1H"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="Wk5-vu-UvS" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="156-73-Q6X"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Wk5-vu-UvS" secondAttribute="trailing" id="7AL-Sy-I6K"/>
@@ -44,6 +57,49 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="944.92753623188412" y="79.6875"/>
+        </scene>
+        <!--Country View Controller-->
+        <scene sceneID="xjU-DR-IU5">
+            <objects>
+                <viewController id="zTu-jA-Vk7" customClass="CountryViewController" customModule="Countries" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="lLk-eG-acz">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="GGK-R3-5yJ">
+                                <rect key="frame" x="20" y="430.5" width="374" height="35"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="29"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Population Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999999999999996" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Ui-fz-4QP">
+                                <rect key="frame" x="20" y="524" width="374" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="te5-e7-1BR"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="te5-e7-1BR" firstAttribute="trailing" secondItem="GGK-R3-5yJ" secondAttribute="trailing" constant="20" id="69H-uH-kQu"/>
+                            <constraint firstItem="GGK-R3-5yJ" firstAttribute="leading" secondItem="te5-e7-1BR" secondAttribute="leading" constant="20" id="OLv-cK-f5D"/>
+                            <constraint firstItem="4Ui-fz-4QP" firstAttribute="leading" secondItem="te5-e7-1BR" secondAttribute="leading" constant="20" id="Tjz-6J-qus"/>
+                            <constraint firstItem="GGK-R3-5yJ" firstAttribute="centerX" secondItem="lLk-eG-acz" secondAttribute="centerX" id="b1V-Bb-2Ap"/>
+                            <constraint firstItem="te5-e7-1BR" firstAttribute="trailing" secondItem="4Ui-fz-4QP" secondAttribute="trailing" constant="20" id="gnQ-rM-6r9"/>
+                            <constraint firstItem="GGK-R3-5yJ" firstAttribute="centerY" secondItem="lLk-eG-acz" secondAttribute="centerY" id="p1n-7p-b4u"/>
+                            <constraint firstItem="4Ui-fz-4QP" firstAttribute="top" secondItem="GGK-R3-5yJ" secondAttribute="bottom" constant="58.5" id="rnp-0X-9fT"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="cuU-rx-IlX"/>
+                    <connections>
+                        <outlet property="nameLabel" destination="GGK-R3-5yJ" id="4mr-GJ-ATS"/>
+                        <outlet property="populationLabel" destination="4Ui-fz-4QP" id="lXb-i9-aGI"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gK7-ym-S8m" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1804.3478260869567" y="79.6875"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="SxP-Ra-YxL">
