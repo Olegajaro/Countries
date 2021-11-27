@@ -24,7 +24,6 @@ class ViewController: UIViewController {
     let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
     
     var searchController: UISearchController!
-    var filteredCountriesList = [(name: String, population: Int)]()
     
     var countriesList: [(name: String, population: Int)] = [
         ("Afghanistan",37209007),("Albania",2938428),("Algeria",42679018),
@@ -93,9 +92,12 @@ class ViewController: UIViewController {
         ("Uzbekistan",32807368),("Vanuatu",288017),("Venezuela",32779868),
         ("Vietnam",97429061),("Yemen",29579986),("Zambia",18137369),("Zimbabwe",17297495)
     ]
-    
     var countriesDictionary = [String: [(name: String, population: Int)]]()
     var sectionTitles = [String]() // A, B, C, D...
+   
+    var filteredCountriesList = [(name: String, population: Int)]()
+    var filteredSectionTitles = [String]()
+    var filteredCountriesDictionary = [String: [(name: String, population: Int)]]()
     
     private var currentViewModeValue: ViewMode = .simple
     
@@ -262,6 +264,33 @@ class ViewController: UIViewController {
         
     }
     
+    private func createExtendedFilteredTableViewData() {
+        
+        // populate
+        filteredCountriesDictionary.removeAll()
+        
+        for country in filteredCountriesList {
+            
+            let countryKey = String(country.name.prefix(1)) // Russia -> R
+            
+            if var countryValues = filteredCountriesDictionary[countryKey] {
+                
+                countryValues.append(country)
+                filteredCountriesDictionary[countryKey] = countryValues
+                
+            } else {
+                
+                filteredCountriesDictionary[countryKey] = [country]
+                
+            }
+            
+        }
+        
+        filteredSectionTitles = [String](filteredCountriesDictionary.keys)
+        filteredSectionTitles = filteredSectionTitles.sorted(by: <) // A...Z
+        
+    }
+    
     // MARK: - Alert
     private func showAlertWithText(vc: UIViewController, title: String, message: String) {
         
@@ -301,22 +330,53 @@ extension ViewController: UISearchResultsUpdating {
         
         print("Update search results")
         
-        filteredCountriesList.removeAll()
-        
-        let whitespacesCharacterSet = CharacterSet.whitespaces
-        let strippedString = searchController.searchBar.text?.trimmingCharacters(in: whitespacesCharacterSet).lowercased()
-        
-        filteredCountriesList = countriesList.filter { country in
+        switch currentViewModeValue {
+
+        case .simple:
             
-            if country.name.lowercased().contains(strippedString ?? "") {
+            filteredCountriesList.removeAll()
+            
+            let whitespacesCharacterSet = CharacterSet.whitespaces
+            let strippedString = searchController.searchBar.text?.trimmingCharacters(in: whitespacesCharacterSet).lowercased()
+            
+            filteredCountriesList = countriesList.filter { country in
                 
-                return true
-                
-            } else {
-                
-                return false
+                if country.name.lowercased().contains(strippedString ?? "") {
+                    
+                    return true
+                    
+                } else {
+                    
+                    return false
+                    
+                }
                 
             }
+            
+        case .extended:
+            
+            filteredCountriesList.removeAll()
+            filteredCountriesDictionary.removeAll()
+            filteredSectionTitles.removeAll()
+            
+            let whitespacesCharacterSet = CharacterSet.whitespaces
+            let strippedString = searchController.searchBar.text?.trimmingCharacters(in: whitespacesCharacterSet).lowercased()
+            
+            filteredCountriesList = countriesList.filter { country in
+                
+                if country.name.lowercased().contains(strippedString ?? "") {
+                    
+                    return true
+                    
+                } else {
+                    
+                    return false
+                    
+                }
+                
+            }
+            
+            createExtendedFilteredTableViewData()
             
         }
         
@@ -339,7 +399,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         case .simple:
             return 1
         case .extended:
-            return sectionTitles.count
+            
+            if !isFiltering() {
+                
+                return sectionTitles.count
+                
+            } else {
+                
+                return filteredSectionTitles.count
+                
+            }
+            
         }
         
     }
@@ -362,14 +432,28 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             
         case .extended:
             
-            let countryKey = sectionTitles[section] // A, B, C
-            
-            if let countryValues = countriesDictionary[countryKey] {
+            if !isFiltering() {
                 
-                return countryValues.count
+                let countryKey = sectionTitles[section] // A, B, C
+                
+                if let countryValues = countriesDictionary[countryKey] {
+                    
+                    return countryValues.count
+                    
+                }
+                
+            } else {
+                
+                let countryKey = filteredSectionTitles[section] // A, B, C
+                
+                if let countryValues = filteredCountriesDictionary[countryKey] {
+                    
+                    return countryValues.count
+                    
+                }
                 
             }
-             
+
         }
         
         return 0
@@ -415,12 +499,26 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             return cell
             
         case .extended:
-             
-            let countryKey = sectionTitles[indexPath.section]
-            
-            if let countryValues = countriesDictionary[countryKey] {
+                         
+            if !isFiltering() {
                 
-                cell.mainLabel.text = countryValues[indexPath.row].name
+                let countryKey = sectionTitles[indexPath.section]
+                
+                if let countryValues = countriesDictionary[countryKey] {
+                    
+                    cell.mainLabel.text = countryValues[indexPath.row].name
+                    
+                }
+                
+            } else {
+                
+                let countryKey = filteredSectionTitles[indexPath.section]
+                
+                if let countryValues = filteredCountriesDictionary[countryKey] {
+                    
+                    cell.mainLabel.text = countryValues[indexPath.row].name
+                    
+                }
                 
             }
             
@@ -440,7 +538,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         case .simple:
             return nil
         case .extended:
-            return sectionTitles[section] // A, B, C
+            
+            if !isFiltering() {
+                
+                return sectionTitles[section] // A, B, C
+                
+            } else {
+                
+                return filteredSectionTitles[section] // A, B, C
+                
+            }
+            
         }
         
     }
@@ -468,7 +576,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         returnedView.backgroundColor = #colorLiteral(red: 0.1298420429, green: 0.1298461258, blue: 0.1298439503, alpha: 1)
 
         let label = UILabel(frame: CGRect(x: 16, y: 10, width: 200, height: 20))
-        label.text = sectionTitles[section] // A, B, C
+        
+        if !isFiltering() {
+            
+            label.text = sectionTitles[section] // A, B, C
+            
+        } else {
+            
+            label.text = filteredSectionTitles[section] // A, B, C
+            
+        }
+        
         label.textColor = .white
 
         returnedView.addSubview(label)
@@ -512,21 +630,44 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             
         case .extended:
             
-            let countryKey = sectionTitles[indexPath.section] // A, B, C
-            let countries = countriesDictionary[countryKey]
-            
-            guard let country = countries?[indexPath.row] else { return }
-            
-            let cell = tableView.cellForRow(at: indexPath) as? CountriesListTableViewCell
-            
-            let countryTextColor = cell?.mainLabel.textColor ?? .white
-            
-            DispatchQueue.main.async {
+            if !isFiltering() {
                 
-                self.showCountryVC(country: country, countryTextColor: countryTextColor)
+                let countryKey = sectionTitles[indexPath.section] // A, B, C
+                let countries = countriesDictionary[countryKey]
                 
+                guard let country = countries?[indexPath.row] else { return }
+                
+                let cell = tableView.cellForRow(at: indexPath) as? CountriesListTableViewCell
+                
+                let countryTextColor = cell?.mainLabel.textColor ?? .white
+                
+                DispatchQueue.main.async {
+                    
+                    self.showCountryVC(country: country, countryTextColor: countryTextColor)
+                    
+                }
+
+                
+            } else {
+                
+                let countryKey = filteredSectionTitles[indexPath.section] // A, B, C
+                let countries = filteredCountriesDictionary[countryKey]
+                
+                guard let country = countries?[indexPath.row] else { return }
+                
+                let cell = tableView.cellForRow(at: indexPath) as? CountriesListTableViewCell
+                
+                let countryTextColor = cell?.mainLabel.textColor ?? .white
+                
+                DispatchQueue.main.async {
+                    
+                    self.showCountryVC(country: country, countryTextColor: countryTextColor)
+                    
+                }
+
             }
             
+                        
         }
         
     }
@@ -539,113 +680,122 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         print("trailing happened")
         
-        if !countriesList.isEmpty {
-            
-            /// Delete action
-            let deleteAction = UIContextualAction(
-                style: .destructive,
-                title: "") { _, _, isDone in
-                    
-                    switch self.currentViewModeValue {
-                    case .simple:
-                        
-                        self.countriesList.remove(at: indexPath.row)
-                        print("delete action")
-                        self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                        
-                        DispatchQueue.main.async {
-                            self.labelFooter.text = "Countries count: \(self.countriesList.count)"
-                            self.labelHeader.text = "🌎\(self.countriesList.count) Countries"
-                        }
-                        
-                    case .extended:
-                        
-                        let countryKey = self.sectionTitles[indexPath.section]
-                        
-                        if var countryValues = self.countriesDictionary[countryKey] {
-                            
-                            countryValues.remove(at: indexPath.row)
-                            self.countriesList.remove(at: indexPath.row)
-                            self.countriesDictionary[countryKey] = countryValues
-                            self.tableView.deleteRows(at: [indexPath], with: .automatic)
-                            
-                            if countryValues.count <= 0 {
-                                
-                                self.sectionTitles.remove(at: indexPath.section)
-                                self.tableView.reloadData()
-                                
-                            }
-                        }
-                        
-                        DispatchQueue.main.async {
-                            self.labelFooter.text = "Countries count: \(self.countriesList.count)"
-                            self.labelHeader.text = "🌎\(self.countriesList.count) Countries"
-                        }
-                        
-                    }
-                    
-                }
-            
-            deleteAction.image = #imageLiteral(resourceName: "trash")
-            
-            /// Share text Action
-            let copyAction = UIContextualAction(
-                style: .normal,
-                title: "Copy") { _, _, _ in
-                    
-                    switch self.currentViewModeValue {
-                    case .simple:
-                        
-                        self.shareText(
-                            text: "\(self.countriesList[indexPath.row].name)\nPopulation \(self.countriesList[indexPath.row].population)"
-                        )
-                        
-                    case .extended:
-                        
-                        let countryKey = self.sectionTitles[indexPath.section]
-                        
-                        if let countryValues = self.countriesDictionary[countryKey] {
-                            
-                            self.shareText(
-                                text: "\(countryValues[indexPath.row].name)\nPopulation \(countryValues[indexPath.row].population)"
-                            )
-                            
-                        }
-                        
-                    }
-                    
-                    
-                    self.tableView.isEditing = false
-                    
-                }
-            
-            copyAction.backgroundColor = .gray
-            
-            /// Move action
-            let moveAction =  UIContextualAction(
-                style: .normal,
-                title: "Move") { _, _, _ in
-                    
-                    print("Move action code")
-                    
-                    self.tableView.isEditing = false // hiding actions
-                    self.tableView.isEditing = true // enabling the editing mode
-                    
-                }
-            
-            moveAction.backgroundColor = .black
-            
-            let swipeActionConfiguration = UISwipeActionsConfiguration(
-                actions: [deleteAction, copyAction, moveAction]
-            )
-            
-            return swipeActionConfiguration
-            
-        } else {
+        if isFiltering() {
             
             return nil
             
+        } else {
+            
+            if !countriesList.isEmpty {
+                
+                /// Delete action
+                let deleteAction = UIContextualAction(
+                    style: .destructive,
+                    title: "") { _, _, isDone in
+                        
+                        switch self.currentViewModeValue {
+                        case .simple:
+                            
+                            self.countriesList.remove(at: indexPath.row)
+                            print("delete action")
+                            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                            
+                            DispatchQueue.main.async {
+                                self.labelFooter.text = "Countries count: \(self.countriesList.count)"
+                                self.labelHeader.text = "🌎\(self.countriesList.count) Countries"
+                            }
+                            
+                        case .extended:
+                            
+                            let countryKey = self.sectionTitles[indexPath.section]
+                            
+                            if var countryValues = self.countriesDictionary[countryKey] {
+                                
+                                countryValues.remove(at: indexPath.row)
+                                self.countriesList.remove(at: indexPath.row)
+                                self.countriesDictionary[countryKey] = countryValues
+                                self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                                
+                                if countryValues.count <= 0 {
+                                    
+                                    self.sectionTitles.remove(at: indexPath.section)
+                                    self.tableView.reloadData()
+                                    
+                                }
+                            }
+                            
+                            DispatchQueue.main.async {
+                                self.labelFooter.text = "Countries count: \(self.countriesList.count)"
+                                self.labelHeader.text = "🌎\(self.countriesList.count) Countries"
+                            }
+                            
+                        }
+                        
+                    }
+                
+                deleteAction.image = #imageLiteral(resourceName: "trash")
+                
+                /// Share text Action
+                let copyAction = UIContextualAction(
+                    style: .normal,
+                    title: "Copy") { _, _, _ in
+                        
+                        switch self.currentViewModeValue {
+                        case .simple:
+                            
+                            self.shareText(
+                                text: "\(self.countriesList[indexPath.row].name)\nPopulation \(self.countriesList[indexPath.row].population)"
+                            )
+                            
+                        case .extended:
+                            
+                            let countryKey = self.sectionTitles[indexPath.section]
+                            
+                            if let countryValues = self.countriesDictionary[countryKey] {
+                                
+                                self.shareText(
+                                    text: "\(countryValues[indexPath.row].name)\nPopulation \(countryValues[indexPath.row].population)"
+                                )
+                                
+                            }
+                            
+                        }
+                        
+                        
+                        self.tableView.isEditing = false
+                        
+                    }
+                
+                copyAction.backgroundColor = .gray
+                
+                /// Move action
+                let moveAction =  UIContextualAction(
+                    style: .normal,
+                    title: "Move") { _, _, _ in
+                        
+                        print("Move action code")
+                        
+                        self.tableView.isEditing = false // hiding actions
+                        self.tableView.isEditing = true // enabling the editing mode
+                        
+                    }
+                
+                moveAction.backgroundColor = .black
+                
+                let swipeActionConfiguration = UISwipeActionsConfiguration(
+                    actions: [deleteAction, copyAction, moveAction]
+                )
+                
+                return swipeActionConfiguration
+                
+            } else {
+                
+                return nil
+                
+            }
+            
         }
+        
     }
     
     // MARK: - Leading swipe Actions Configuration
@@ -656,53 +806,62 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         print("leading happened")
         
-        let showPopulationAction = UIContextualAction(
-            style: .normal,
-            title: "👨‍👦‍👦") { _, _, _ in
-                
-                switch self.currentViewModeValue {
-                case .simple:
+        if isFiltering() {
+            
+            return nil
+            
+        } else {
+            
+            let showPopulationAction = UIContextualAction(
+                style: .normal,
+                title: "👨‍👦‍👦") { _, _, _ in
                     
-                    DispatchQueue.main.async {
-                        
-                        self.showAlertWithText(
-                            vc: self,
-                            title: self.countriesList[indexPath.row].name,
-                            message: "Population: \(self.countriesList[indexPath.row].population)"
-                        )
-                        
-                    }
-                    
-                case .extended:
-                    
-                    let countryKey = self.sectionTitles[indexPath.section]
-                    
-                    if let countryValues = self.countriesDictionary[countryKey] {
+                    switch self.currentViewModeValue {
+                    case .simple:
                         
                         DispatchQueue.main.async {
                             
                             self.showAlertWithText(
                                 vc: self,
-                                title: countryValues[indexPath.row].name,
-                                message: "Population: \(countryValues[indexPath.row].population)"
+                                title: self.countriesList[indexPath.row].name,
+                                message: "Population: \(self.countriesList[indexPath.row].population)"
                             )
                             
                         }
                         
+                    case .extended:
+                        
+                        let countryKey = self.sectionTitles[indexPath.section]
+                        
+                        if let countryValues = self.countriesDictionary[countryKey] {
+                            
+                            DispatchQueue.main.async {
+                                
+                                self.showAlertWithText(
+                                    vc: self,
+                                    title: countryValues[indexPath.row].name,
+                                    message: "Population: \(countryValues[indexPath.row].population)"
+                                )
+                                
+                            }
+                            
+                        }
+                        
                     }
-                    
-                }
 
-                self.tableView.isEditing = false
-            }
+                    self.tableView.isEditing = false
+                }
+            
+            showPopulationAction.backgroundColor = .green
+            
+            let swipeActionConfiguration = UISwipeActionsConfiguration(
+                actions: [showPopulationAction]
+            )
+            
+            return swipeActionConfiguration
+            
+        }
         
-        showPopulationAction.backgroundColor = .green
-        
-        let swipeActionConfiguration = UISwipeActionsConfiguration(
-            actions: [showPopulationAction]
-        )
-        
-        return swipeActionConfiguration
     }
     
     // MARK: - Move Row At
@@ -743,7 +902,17 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         case .simple:
             return nil
         case .extended:
-            return sectionTitles
+            
+            if !isFiltering() {
+                
+                return sectionTitles
+                
+            } else {
+                
+                return filteredSectionTitles
+                
+            }
+            
         }
 
     }
