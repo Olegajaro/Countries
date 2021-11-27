@@ -20,7 +20,7 @@ class ViewController: UIViewController {
     
     let segueID = "showCountryVCSegue"
     
-    let labelHeader = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
+    let labelHeader = UILabel(frame: CGRect(x: 16, y: 18, width: 400, height: 20))
     let labelFooter = UILabel(frame: CGRect(x: 16, y: 18, width: 200, height: 20))
     
     var searchController: UISearchController!
@@ -104,6 +104,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupViews()
         setupSearchController()
         setupUITableView()
     }
@@ -121,6 +122,18 @@ class ViewController: UIViewController {
         print("Switch mode tapped: \(currentViewModeValue)")
         
         updateTableView()
+        
+    }
+    
+    // MARK: - View Appearance
+    func setupViews() {
+        
+        view.backgroundColor = .black
+        navigationController?.navigationBar.barTintColor = .black
+        navigationController?.navigationBar.isTranslucent = false
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.topItem?.title = "Countries"
+        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.lightGray]
         
     }
     
@@ -145,6 +158,9 @@ class ViewController: UIViewController {
         
         let searchBar = searchController.searchBar
         searchBar.searchBarStyle = .prominent
+        searchBar.backgroundColor = .black
+        searchBar.tintColor = .white
+        searchBar.searchTextField.textColor = .white
         
     }
     
@@ -173,7 +189,7 @@ class ViewController: UIViewController {
         
         labelHeader.textColor = .white
         labelHeader.textAlignment = .left
-        labelHeader.text = "🌎\(countriesList.count) Countries"
+        labelHeader.text = "🌎\(countriesList.count) Countries, \(totalPopulation()) people"
         tableView.tableHeaderView?.addSubview(labelHeader)
         
         // MARK: - TableFooterView
@@ -194,12 +210,21 @@ class ViewController: UIViewController {
         tableView.sectionIndexColor = .white
         
         tableView.sectionHeaderTopPadding = 0
+        
+        tableView.backgroundColor = #colorLiteral(red: 0.1298420429, green: 0.1298461258, blue: 0.1298439503, alpha: 1)
+        
     }
     
     private func updateTableView() {
         createExtendedTableViewData()
         
         tableView.reloadData()
+    }
+    
+    private func totalPopulation() -> Int {
+        
+        return countriesList.map { $0.population }.reduce(0, +)
+        
     }
     
     // MARK: - Sharing text
@@ -667,7 +692,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 
             }
             
-                        
         }
         
     }
@@ -702,7 +726,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                             
                             DispatchQueue.main.async {
                                 self.labelFooter.text = "Countries count: \(self.countriesList.count)"
-                                self.labelHeader.text = "🌎\(self.countriesList.count) Countries"
+                                self.labelHeader.text = "🌎\(self.countriesList.count) Countries, \(self.totalPopulation()) people"
                             }
                             
                         case .extended:
@@ -726,7 +750,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                             
                             DispatchQueue.main.async {
                                 self.labelFooter.text = "Countries count: \(self.countriesList.count)"
-                                self.labelHeader.text = "🌎\(self.countriesList.count) Countries"
+                                self.labelHeader.text = "🌎\(self.countriesList.count) Countries, \(self.totalPopulation()) people"
                             }
                             
                         }
