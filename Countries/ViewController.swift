@@ -344,6 +344,63 @@ class ViewController: UIViewController {
     }
 }
 
+// MARK: - CountriesListTableViewCellDelegate
+extension ViewController: CountriesListTableViewCellDelegate {
+    
+    func didPressCheckMarkButtonInCell(_ button: UIButton, cell: UITableViewCell) {
+        
+        let countriesCell = cell as? CountriesListTableViewCell
+        
+        if let countryNameInCell = countriesCell?.mainLabel.text?.lowercased() {
+            
+            if let checkedNamesFromDefaults = StorageManager.checkedNamesArray() { // we have an array
+                
+                if checkedNamesFromDefaults.contains(countryNameInCell) { // contains
+                    
+                    let editedArray = checkedNamesFromDefaults.filter { $0 != countryNameInCell }
+                    
+                    StorageManager.setCheckedNamesArray(array: editedArray)
+                    
+                    DispatchQueue.main.async {
+                         
+                        self.tableView.reloadData()
+                        
+                    }
+                    
+                } else {
+                    
+                    let editedArray = checkedNamesFromDefaults + [countryNameInCell]
+                    
+                    StorageManager.setCheckedNamesArray(array: editedArray)
+                    
+                    DispatchQueue.main.async {
+                         
+                        self.tableView.reloadData()
+                        
+                    }
+                    
+                }
+                
+            } else { // no array
+                
+                StorageManager.setCheckedNamesArray(array: [countryNameInCell])
+                
+                DispatchQueue.main.async {
+                     
+                    self.tableView.reloadData()
+                    
+                }
+                
+            }
+            
+        }
+        
+        print("array in defaults  \( StorageManager.checkedNamesArray() ?? [] )")
+        
+    }
+    
+}
+
 // MARK: - Search Protocols
 extension ViewController: UISearchBarDelegate, UISearchControllerDelegate {
     
@@ -506,16 +563,58 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             for: indexPath
         ) as! CountriesListTableViewCell
         
+        cell.cellDelegate = self
+        
         switch currentViewModeValue {
         case .simple:
             
             if !isFiltering() {
                 
                 cell.mainLabel.text = countriesList[indexPath.row].name
-
+                
+                if let countryCheckedNamesArray = StorageManager.checkedNamesArray() {
+                    
+                    let countryName = countriesList[indexPath.row].name.lowercased()
+                    
+                    if countryCheckedNamesArray.contains(countryName) {
+                        
+                        cell.checkMarkButton.setImage(UIImage(named: "checked"), for: .normal)
+                        
+                    } else {
+                        
+                        cell.checkMarkButton.setImage(UIImage(named: "unchecked"), for: .normal)
+                        
+                    }
+                    
+                } else {
+                    
+                    cell.checkMarkButton.setImage(UIImage(named: "unchecked"), for: .normal)
+                    
+                }
+                
             } else {
                 
                 cell.mainLabel.text = filteredCountriesList[indexPath.row].name
+                
+                if let countryCheckedNamesArray = StorageManager.checkedNamesArray() {
+                    
+                    let countryName = filteredCountriesList[indexPath.row].name.lowercased()
+                    
+                    if countryCheckedNamesArray.contains(countryName) {
+                        
+                        cell.checkMarkButton.setImage(UIImage(named: "checked"), for: .normal)
+                        
+                    } else {
+                        
+                        cell.checkMarkButton.setImage(UIImage(named: "unchecked"), for: .normal)
+                        
+                    }
+                    
+                } else {
+                    
+                    cell.checkMarkButton.setImage(UIImage(named: "unchecked"), for: .normal)
+                    
+                }
                 
             }
             
@@ -533,6 +632,26 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                     
                     cell.mainLabel.text = countryValues[indexPath.row].name
                     
+                    if let countryCheckedNamesArray = StorageManager.checkedNamesArray() {
+                        
+                        let countryName = countryValues[indexPath.row].name.lowercased()
+                        
+                        if countryCheckedNamesArray.contains(countryName) {
+                            
+                            cell.checkMarkButton.setImage(UIImage(named: "checked"), for: .normal)
+                            
+                        } else {
+                            
+                            cell.checkMarkButton.setImage(UIImage(named: "unchecked"), for: .normal)
+                            
+                        }
+                        
+                    } else {
+                        
+                        cell.checkMarkButton.setImage(UIImage(named: "unchecked"), for: .normal)
+                        
+                    }
+                    
                 }
                 
             } else {
@@ -542,6 +661,26 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                 if let countryValues = filteredCountriesDictionary[countryKey] {
                     
                     cell.mainLabel.text = countryValues[indexPath.row].name
+                    
+                    if let countryCheckedNamesArray = StorageManager.checkedNamesArray() {
+                        
+                        let countryName = countryValues[indexPath.row].name.lowercased()
+                        
+                        if countryCheckedNamesArray.contains(countryName) {
+                            
+                            cell.checkMarkButton.setImage(UIImage(named: "checked"), for: .normal)
+                            
+                        } else {
+                            
+                            cell.checkMarkButton.setImage(UIImage(named: "unchecked"), for: .normal)
+                            
+                        }
+                        
+                    } else {
+                        
+                        cell.checkMarkButton.setImage(UIImage(named: "unchecked"), for: .normal)
+                        
+                    }
                     
                 }
                 

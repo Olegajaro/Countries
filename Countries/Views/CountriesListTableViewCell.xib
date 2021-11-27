@@ -22,18 +22,36 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hIQ-yF-lUX">
+                        <rect key="frame" x="260" y="0.0" width="60" height="60"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="60" id="qsw-Eg-kAk"/>
+                        </constraints>
+                        <state key="normal" title="Button"/>
+                        <buttonConfiguration key="configuration" style="plain" image="unchecked"/>
+                        <connections>
+                            <action selector="checkMarkButtonTapped:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="EbT-Im-ME7"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="trailing" secondItem="qaA-Dw-b24" secondAttribute="trailing" constant="16" id="6zs-Z2-lRe"/>
                     <constraint firstItem="qaA-Dw-b24" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="LXJ-mz-zZB"/>
+                    <constraint firstItem="hIQ-yF-lUX" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="QCA-Pj-UXz"/>
                     <constraint firstItem="qaA-Dw-b24" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="UUI-Q0-eo6"/>
+                    <constraint firstAttribute="bottom" secondItem="hIQ-yF-lUX" secondAttribute="bottom" id="dZf-U7-sQZ"/>
+                    <constraint firstAttribute="trailing" secondItem="hIQ-yF-lUX" secondAttribute="trailing" id="rjT-uW-7bE"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
+                <outlet property="checkMarkButton" destination="hIQ-yF-lUX" id="HDU-3H-JBa"/>
                 <outlet property="mainLabel" destination="qaA-Dw-b24" id="qAG-5f-ygE"/>
             </connections>
             <point key="canvasLocation" x="139" y="110"/>
         </tableViewCell>
     </objects>
+    <resources>
+        <image name="unchecked" width="24" height="24"/>
+    </resources>
 </document>

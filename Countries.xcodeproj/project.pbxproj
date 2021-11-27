@@ -17,6 +17,7 @@
 		1088DE2F274ECF3A0033F446 /* CountriesListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1088DE2D274ECF3A0033F446 /* CountriesListTableViewCell.xib */; };
 		10AF8D3D274FC4AA00128DE2 /* Country.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AF8D3C274FC4AA00128DE2 /* Country.swift */; };
 		10F4BA7327525F4E00D7598A /* CountryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F4BA7227525F4E00D7598A /* CountryViewController.swift */; };
+		10F4BA752752AFA900D7598A /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F4BA742752AFA900D7598A /* StorageManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		1088DE2D274ECF3A0033F446 /* CountriesListTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CountriesListTableViewCell.xib; sourceTree = "<group>"; };
 		10AF8D3C274FC4AA00128DE2 /* Country.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Country.swift; sourceTree = "<group>"; };
 		10F4BA7227525F4E00D7598A /* CountryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryViewController.swift; sourceTree = "<group>"; };
+		10F4BA742752AFA900D7598A /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 				1088DE2B274ECF130033F446 /* Views */,
 				1088DE1B274ECB840033F446 /* ViewController.swift */,
 				10F4BA7227525F4E00D7598A /* CountryViewController.swift */,
+				10F4BA742752AFA900D7598A /* StorageManager.swift */,
 				10AF8D3C274FC4AA00128DE2 /* Country.swift */,
 				1088DE1D274ECB840033F446 /* Main.storyboard */,
 				1088DE22274ECB840033F446 /* LaunchScreen.storyboard */,
@@ -162,6 +165,7 @@
 				1088DE2E274ECF3A0033F446 /* CountriesListTableViewCell.swift in Sources */,
 				1088DE1C274ECB840033F446 /* ViewController.swift in Sources */,
 				1088DE18274ECB840033F446 /* AppDelegate.swift in Sources */,
+				10F4BA752752AFA900D7598A /* StorageManager.swift in Sources */,
 				10F4BA7327525F4E00D7598A /* CountryViewController.swift in Sources */,
 				10AF8D3D274FC4AA00128DE2 /* Country.swift in Sources */,
 				1088DE1A274ECB840033F446 /* SceneDelegate.swift in Sources */,

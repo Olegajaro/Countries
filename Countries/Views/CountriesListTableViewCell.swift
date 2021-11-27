@@ -7,9 +7,18 @@
 
 import UIKit
 
+protocol CountriesListTableViewCellDelegate: AnyObject {
+    
+    func didPressCheckMarkButtonInCell(_ button: UIButton, cell: UITableViewCell)
+    
+}
+
 class CountriesListTableViewCell: UITableViewCell {
 
     @IBOutlet weak var mainLabel: UILabel!
+    @IBOutlet weak var checkMarkButton: UIButton!
+    
+    weak var cellDelegate: CountriesListTableViewCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -20,6 +29,13 @@ class CountriesListTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+    
+    
+    @IBAction func checkMarkButtonTapped(_ sender: UIButton) {
+        
+        cellDelegate?.didPressCheckMarkButtonInCell(sender, cell: self)
+        
     }
     
 }
