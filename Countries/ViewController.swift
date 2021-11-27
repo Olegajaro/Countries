@@ -387,7 +387,40 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         print("row selected ")
         
-        performSegue(withIdentifier: segueID, sender: nil)
+//        performSegue(withIdentifier: segueID, sender: nil)
+        
+        switch currentViewModeValue {
+        case .simple:
+            
+            let country = countriesList[indexPath.row]
+            let cell = tableView.cellForRow(at: indexPath) as? CountriesListTableViewCell
+            
+            let countryTextColor = cell?.mainLabel.textColor ?? .white
+            
+            DispatchQueue.main.async {
+                
+                self.showCountryVC(country: country, countryTextColor: countryTextColor)
+                
+            }
+            
+        case .extended:
+            
+            let countryKey = sectionTitles[indexPath.section] // A, B, C
+            let countries = countriesDictionary[countryKey]
+            
+            guard let country = countries?[indexPath.row] else { return }
+            
+            let cell = tableView.cellForRow(at: indexPath) as? CountriesListTableViewCell
+            
+            let countryTextColor = cell?.mainLabel.textColor ?? .white
+            
+            DispatchQueue.main.async {
+                
+                self.showCountryVC(country: country, countryTextColor: countryTextColor)
+                
+            }
+            
+        }
         
     }
     
@@ -609,6 +642,26 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     // MARK: - Navigation
+    func showCountryVC(country: (name: String, population: Int), countryTextColor: UIColor) {
+        
+        guard
+            let vc = storyboard?.instantiateViewController(withIdentifier: "countryVCID") as? CountryViewController
+        else { return }
+        
+        vc.country = country
+        vc.countryTextColor = countryTextColor
+        
+        vc.modalTransitionStyle = .crossDissolve
+        
+        let backItem = UIBarButtonItem()
+        backItem.title = " "
+        navigationItem.backBarButtonItem = backItem
+        
+//        present(vc, animated: true)
+        navigationController?.pushViewController(vc, animated: true)
+        
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         switch currentViewModeValue {
