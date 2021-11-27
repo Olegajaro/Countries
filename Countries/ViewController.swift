@@ -124,7 +124,7 @@ class ViewController: UIViewController {
         tableView.dataSource = self
         
         tableView.register(
-            UINib(nibName: "CountriesListTableViewCell", bundle: nil),
+            UINib.init(nibName: "CountriesListTableViewCell", bundle: nil),
             forCellReuseIdentifier: "countryCell"
         )
         
@@ -142,7 +142,7 @@ class ViewController: UIViewController {
         
         labelHeader.textColor = .white
         labelHeader.textAlignment = .left
-        labelHeader.text = "🌎\(self.countriesList.count) Countries"
+        labelHeader.text = "🌎\(countriesList.count) Countries"
         tableView.tableHeaderView?.addSubview(labelHeader)
         
         // MARK: - TableFooterView
@@ -156,12 +156,13 @@ class ViewController: UIViewController {
         
         labelFooter.textColor = .white
         labelFooter.textAlignment = .left
-        labelFooter.text = "Countries count: \(self.countriesList.count)"
+        labelFooter.text = "Countries count: \(countriesList.count)"
         tableView.tableFooterView?.addSubview(labelFooter )
         
         tableView.sectionIndexBackgroundColor = .black
         tableView.sectionIndexColor = .white
         
+        tableView.sectionHeaderTopPadding = 0
     }
     
     private func updateTableView() {
@@ -345,9 +346,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
         
     }
-    
-    func tableView(_ tableView: UITableView,
-                   estimatedHeightForHeaderInSection section: Int) -> CGFloat {
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
 
         switch currentViewModeValue {
         case .simple:
@@ -358,25 +358,25 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 
     }
 
-//    func tableView(_ tableView: UITableView,
-//                   viewForHeaderInSection section: Int) -> UIView? {
-//
-//        let returnedView = UIView(frame: CGRect(
-//            x: 0,
-//            y: 0,
-//            width: view.bounds.width,
-//            height: 40
-//        ))
-//        returnedView.backgroundColor = .black
-//
-//        let label = UILabel(frame: CGRect(x: 16, y: 10, width: 200, height: 20))
-//        label.text = sectionTitles[section] // A, B, C
-//        label.textColor = .white
-//
-//        returnedView.addSubview(label)
-//
-//        return returnedView
-//    }
+    func tableView(_ tableView: UITableView,
+                   viewForHeaderInSection section: Int) -> UIView? {
+        
+        let returnedView = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: view.bounds.width,
+            height: 40
+        ))
+        returnedView.backgroundColor = #colorLiteral(red: 0.1298420429, green: 0.1298461258, blue: 0.1298439503, alpha: 1)
+
+        let label = UILabel(frame: CGRect(x: 16, y: 10, width: 200, height: 20))
+        label.text = sectionTitles[section] // A, B, C
+        label.textColor = .white
+
+        returnedView.addSubview(label)
+
+        return returnedView
+    }
     
     func tableView(_ tableView: UITableView,
                    didSelectRowAt indexPath: IndexPath) {
@@ -574,7 +574,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.isEditing = false
         
     }
-    
     
     func tableView(
         _ tableView: UITableView,
