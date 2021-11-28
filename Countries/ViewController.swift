@@ -96,8 +96,8 @@ class ViewController: UIViewController {
     var sectionTitles = [String]() // A, B, C, D...
    
     var filteredCountriesList = [(name: String, population: Int)]()
-    var filteredSectionTitles = [String]()
     var filteredCountriesDictionary = [String: [(name: String, population: Int)]]()
+    var filteredSectionTitles = [String]()
     
     private var currentViewModeValue: ViewMode = .simple
     
@@ -1161,7 +1161,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             
         }
         
-        cell.tintColor = .red
+        cell.tintColor = .white
         cell.selectionStyle = .none
         cell.accessoryType = .none
         
